@@ -57,22 +57,34 @@ print('--- Username: ', username)
 print('--- Password: ', password)
 print('------------------------------------------------------')
 
-# Change the hostname
-session.sendline('configure terminal')
-session.expect(['\(config\)#', pexpect.TIMEOUT])
-
-# Send the hostname change command
-session.sendline(f'hostname {new_hostname}')
-result = session.expect([f'{new_hostname}#', pexpect.TIMEOUT])
-
-# Check for error, if it exists, then display error and exit
-if result != 0:
-    print(f'--- FAILURE! changing hostname to: {new_hostname}')
+# Check if we were able to enter config mode
+if result == 0:
+    print('Entered configuration mode successfully.')
 else:
-    print(f'--- Success! Hostname changed to: {new_hostname}')
+    print('Error entering configuration mode. Result:', result)
+    exit()
 
-# Exit configuration mode and quit session
+session.sendline('hostname ' + new_hostname)
+result = session.expect([r'\(config\)#', pexpect.TIMEOUT, pexpect.EOF])
+
+if result == 0:
+    print('Hostname changed successfully.')
+else:
+    print('Error setting hostname. Result:', result)
+    exit()
+
 session.sendline('end')
-session.expect([f'{new_hostname}#', pexpect.TIMEOUT])
+result = session.expect(['#', pexpect.TIMEOUT])
+
+if result == 0:
+    print('Exited configuration mode.')
+else:
+    print('Error exiting configuration mode. Result:', result)
+    exit()
+
+# Display success message for hostname change
+print('Hostname successfully changed to:', new_hostname)
+
+# Exit the program
 session.sendline('quit')
 session.close()
