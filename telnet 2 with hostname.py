@@ -1,18 +1,9 @@
-# -*- coding: utf-8 -*-
 """
 Created on Wed Oct 16 17:31:17 2024
 
 @author: arnol
 """
 
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Oct 15 16:08:57 2024
-
-@author: arnol
-"""
-
-# Import required modules/packages/library
 import pexpect
 
 # Define variables
@@ -21,7 +12,7 @@ username = 'cisco'
 password = 'cisco123!'
 
 # Prompt user for the new hostname
-new_hostname = print('ThisWorksYay')
+new_hostname = input("Enter the new hostname: ")
 
 # Create telnet session
 session = pexpect.spawn('telnet ' + ip_address, encoding='utf-8', timeout=20)
@@ -29,7 +20,7 @@ result = session.expect(['Username:', pexpect.TIMEOUT])
 
 # Check for error, if it exists, then display error and exit
 if result != 0:
-    print('--- FAILURE! creating session for: ', ip_address)
+    print('--- FAILURE! creating session for:', ip_address)
     exit()
 
 # Session is expecting username, enter details
@@ -38,7 +29,7 @@ result = session.expect(['Password:', pexpect.TIMEOUT])
 
 # Check for error, if it exists, then display error and exit
 if result != 0:
-    print('--- FAILURE! entering username: ', username)
+    print('--- FAILURE! entering username:', username)
     exit()
 
 # Session is expecting password, enter details
@@ -47,43 +38,51 @@ result = session.expect(['#', pexpect.TIMEOUT])
 
 # Check for error, if it exists, then display error and exit
 if result != 0:
-    print('--- FAILURE! entering password: ', password)
+    print('--- FAILURE! entering password:', password)
     exit()
 
 # Display a success message if it works
 print('------------------------------------------------------')
-print('--- Success! connecting to : ', ip_address)
-print('--- Username: ', username)
-print('--- Password: ', password)
+print('--- Success! connecting to:', ip_address)
+print('--- Username:', username)
+print('--- Password:', password)
 print('------------------------------------------------------')
+
+# Enter configuration mode
+session.sendline('configure terminal')
+result = session.expect(['\(config\)#', pexpect.TIMEOUT])
 
 # Check if we were able to enter config mode
 if result == 0:
-    print('Entered configuration mode successfully.')
+    print('--- Entered configuration mode successfully.')
 else:
-    print('Error entering configuration mode. Result:', result)
+    print('--- FAILURE! entering configuration mode. Result:', result)
     exit()
 
-session.sendline('hostname ' + new_hostname)
-result = session.expect([r'\(config\)#', pexpect.TIMEOUT, pexpect.EOF])
+# Send the hostname change command
+session.sendline(f'hostname {new_hostname}')
+result = session.expect([f'{new_hostname}#', pexpect.TIMEOUT])
 
+# Check if the hostname was changed successfully
 if result == 0:
-    print('Hostname changed successfully.')
+    print('--- Hostname changed successfully to:', new_hostname)
 else:
-    print('Error setting hostname. Result:', result)
+    print('--- FAILURE! setting hostname. Result:', result)
     exit()
 
+# Exit configuration mode
 session.sendline('end')
-result = session.expect(['#', pexpect.TIMEOUT])
+result = session.expect([f'{new_hostname}#', pexpect.TIMEOUT])
 
+# Check if exited config mode successfully
 if result == 0:
-    print('Exited configuration mode.')
+    print('--- Exited configuration mode successfully.')
 else:
-    print('Error exiting configuration mode. Result:', result)
+    print('--- FAILURE! exiting configuration mode. Result:', result)
     exit()
 
 # Display success message for hostname change
-print('Hostname successfully changed to:', new_hostname)
+print('--- Hostname successfully changed to:', new_hostname)
 
 # Exit the program
 session.sendline('quit')
