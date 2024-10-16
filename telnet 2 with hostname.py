@@ -1,17 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Oct 16 17:31:17 2024
-
-@author: arnol
-"""
-
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Oct 15 16:08:57 2024
-
-@author: arnol
-"""
-
 # Import required modules/packages/library
 import pexpect
 
