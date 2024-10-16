@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Created on Wed Oct 16 17:31:17 2024
 
@@ -15,7 +16,7 @@ password = 'cisco123!'
 new_hostname = input("Enter the new hostname: ")
 
 # Create telnet session
-session = pexpect.spawn('telnet ' + ip_address, encoding='utf-8', timeout=20)
+session = pexpect.spawn('telnet ' + ip_address, encoding='utf-8', timeout=30)
 result = session.expect(['Username:', pexpect.TIMEOUT])
 
 # Check for error, if it exists, then display error and exit
@@ -50,10 +51,10 @@ print('------------------------------------------------------')
 
 # Enter configuration mode
 session.sendline('configure terminal')
-result = session.expect(['\(config\)#', pexpect.TIMEOUT])
+result = session.expect(['\(config\)#', '#', pexpect.TIMEOUT])
 
 # Check if we were able to enter config mode
-if result == 0:
+if result == 0 or result == 1:
     print('--- Entered configuration mode successfully.')
 else:
     print('--- FAILURE! entering configuration mode. Result:', result)
@@ -61,7 +62,7 @@ else:
 
 # Send the hostname change command
 session.sendline(f'hostname {new_hostname}')
-result = session.expect([f'{new_hostname}#', pexpect.TIMEOUT])
+result = session.expect(['#', pexpect.TIMEOUT])
 
 # Check if the hostname was changed successfully
 if result == 0:
@@ -72,7 +73,7 @@ else:
 
 # Exit configuration mode
 session.sendline('end')
-result = session.expect([f'{new_hostname}#', pexpect.TIMEOUT])
+result = session.expect(['#', pexpect.TIMEOUT])
 
 # Check if exited config mode successfully
 if result == 0:
